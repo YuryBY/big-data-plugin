@@ -2,7 +2,7 @@
  *
  * Pentaho Data Integration
  *
- * Copyright (C) 2002-2016 by Pentaho : http://www.pentaho.com
+ * Copyright (C) 2002-2017 by Pentaho : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -476,6 +476,11 @@ public class JobEntrySparkSubmit extends JobEntryBase implements Cloneable, JobE
    */
   public List<String> getCmds() throws IOException {
     List<String> cmds = new ArrayList<String>();
+
+    if ( Const.isWindows() ) {
+      cmds.add( "cmd" );
+      cmds.add( "/c" );
+    }
 
     cmds.add( environmentSubstitute( scriptPath ) );
     cmds.add( "--master" );

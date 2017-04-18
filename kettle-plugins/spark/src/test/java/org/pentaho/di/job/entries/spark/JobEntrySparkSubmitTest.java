@@ -2,7 +2,7 @@
  *
  * Pentaho Data Integration
  *
- * Copyright (C) 2002-2016 by Pentaho : http://www.pentaho.com
+ * Copyright (C) 2002-2017 by Pentaho : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -61,16 +61,30 @@ public class JobEntrySparkSubmitTest {
     libs.put("/path/to/lib2", "<Static>");
     ss.setLibs( libs );
 
-    String[] expected = new String[] { "scriptPath", "--master", "master_url", "--conf", "name1=value1", "--conf",
-        "name2=value 2", "--driver-memory", "driverMemory", "--executor-memory",
-        "executorMemory", "--class", "class_name", "--jars", "file:///path/to/lib1,/path/to/lib2",  "jar_path", "arg1", "arg2" };
+    boolean isWindows = System.getProperty("os.name").startsWith("Windows");
+    String[] expected;
+    if ( isWindows ) {
+      expected = new String[] {"cmd", "/c", "scriptPath", "--master", "master_url", "--conf", "name1=value1", "--conf",
+              "name2=value 2", "--driver-memory", "driverMemory", "--executor-memory", "executorMemory", "--class",
+              "class_name", "--jars", "file:///path/to/lib1,/path/to/lib2", "jar_path", "arg1", "arg2"};
+    } else {
+      expected = new String[]{"scriptPath", "--master", "master_url", "--conf", "name1=value1", "--conf",
+              "name2=value 2", "--driver-memory", "driverMemory", "--executor-memory", "executorMemory", "--class",
+              "class_name", "--jars", "file:///path/to/lib1,/path/to/lib2", "jar_path", "arg1", "arg2"};
+    }
     Assert.assertArrayEquals( expected, ss.getCmds().toArray() );
 
     ss.setJobType( JOB_TYPE_PYTHON );
     ss.setPyFile( "pyFile-path" );
-    expected = new String[] { "scriptPath", "--master", "master_url", "--conf", "name1=value1", "--conf",
-        "name2=value 2", "--driver-memory", "driverMemory", "--executor-memory",
-        "executorMemory", "--py-files", "file:///path/to/lib1,/path/to/lib2",  "pyFile-path", "arg1", "arg2" };
+    if ( isWindows ) {
+      expected = new String[]{"cmd", "/c", "scriptPath", "--master", "master_url", "--conf", "name1=value1", "--conf",
+              "name2=value 2", "--driver-memory", "driverMemory", "--executor-memory",
+              "executorMemory", "--py-files", "file:///path/to/lib1,/path/to/lib2", "pyFile-path", "arg1", "arg2"};
+    } else {
+      expected = new String[]{"scriptPath", "--master", "master_url", "--conf", "name1=value1", "--conf",
+              "name2=value 2", "--driver-memory", "driverMemory", "--executor-memory",
+              "executorMemory", "--py-files", "file:///path/to/lib1,/path/to/lib2", "pyFile-path", "arg1", "arg2"};
+    }
     Assert.assertArrayEquals( expected, ss.getCmds().toArray() );
   }
 
